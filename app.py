@@ -195,5 +195,12 @@ def get_balance(id, year):
     balances = [b for b in db["balances"] if b["employeeId"] == id and b["year"] == year]
     return api_response(True, "Balances retrieved", balances)
 
+from flask import redirect
+
+@app.route('/')
+def home():
+    # This automatically sends visitors to the Swagger UI
+    return redirect('/apidocs/')
+
 if __name__ == '__main__':
     app.run(debug=True, port=8000)
