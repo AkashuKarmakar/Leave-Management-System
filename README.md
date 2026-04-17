@@ -1,7 +1,6 @@
 Leave Management System (Python API)
 A lightweight, high-performance RESTful API for managing employee leave requests, balances, and records. Built with Python 3.14 (Flask) to ensure rapid iteration and clear documentation.
 🚀 Live Demo
-Hosted API Link: https://leave-management-system-tgtm.onrender.com
 Interactive Swagger UI (live link ): https://leave-management-system-2-j5ax.onrender.com/apidocs/
 🛠 Features
 Employee Management: Create, update, and retrieve employee details.
