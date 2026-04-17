@@ -6,13 +6,10 @@ from flasgger import Swagger
 import portalocker
 
 app = Flask(__name__)
-# This creates the Swagger UI at /apidocs
 swagger = Swagger(app)
-
 DB_FILE = "database.json"
 
 # --- Database Helpers ---
-
 def read_db():
     if not os.path.exists(DB_FILE):
         return {"employees": [], "leaves": [], "balances": [], "metadata": {"lastEmployeeId": 0, "lastLeaveId": 0}}
@@ -24,72 +21,66 @@ def write_db(data):
         json.dump(data, f, indent=2)
 
 def api_response(success, message, data=None):
-    return jsonify({
-        "success": success,
-        "message": message,
-        "data": data
-    })
+    return jsonify({"success": success, "message": message, "data": data})
 
 # --- Routes ---
 
 @app.route('/api/employees', methods=['GET'])
 def get_employees():
     """
-    Fetch all employees or a specific one by ID.
+    Retrieve all employees or a specific employee by ID.
     ---
     parameters:
       - name: employeeId
         in: query
         type: integer
+        description: ID of the employee to fetch
     responses:
       200:
-        description: A list of employees or a single employee
+        description: Success
     """
     db = read_db()
     eid = request.args.get('employeeId')
     if eid:
-        emp = next((e for e in db["employees"] if e["employeeId"] == int(eid)), None)
-        if not emp:
-            return api_response(False, "Employee not found"), 404
+        emp = next((e for e in db["employees"] if str(e["employeeId"]) == str(eid)), None)
+        if not emp: return api_response(False, "Employee not found"), 404
         return api_response(True, "Employee retrieved", emp)
     return api_response(True, "All employees retrieved", db["employees"])
 
 @app.route('/api/employees', methods=['POST'])
 def save_employee():
     """
-    Create or Update an employee.
+    Create a new employee or update an existing one.
     ---
     parameters:
       - name: body
         in: body
         required: true
         schema:
-          type: object
           properties:
-            employeeId: {type: integer}
+            employeeId: {type: integer, description: "Leave blank to create new"}
             firstName: {type: string}
             lastName: {type: string}
             email: {type: string}
             department: {type: string}
-            joinDate: {type: string}
+            joinDate: {type: string, description: "YYYY-MM-DD"}
     responses:
       200:
-        description: Employee saved
+        description: Success
     """
     db = read_db()
     data = request.json
-    
     eid = data.get("employeeId")
     if eid:
-        # Update
+        # Update Logic
         for i, existing in enumerate(db["employees"]):
             if existing["employeeId"] == eid:
                 db["employees"][i] = data
                 write_db(db)
                 return api_response(True, "Employee updated successfully", data)
-        return api_response(False, "Employee ID not found"), 404
+        return api_response(False, f"Employee ID {eid} not found for update"), 404
     else:
-        # Create
+        # Create Logic
         new_id = db["metadata"]["lastEmployeeId"] + 1
         data["employeeId"] = new_id
         db["employees"].append(data)
@@ -100,7 +91,7 @@ def save_employee():
 @app.route('/api/leaves/employee/<int:id>', methods=['GET'])
 def get_leaves(id):
     """
-    Get leave history for an employee.
+    Get leave history for a specific employee.
     ---
     parameters:
       - name: id
@@ -110,13 +101,17 @@ def get_leaves(id):
       - name: status
         in: query
         type: string
+        description: Filter by status (Pending, Approved, Rejected)
+    responses:
+      200:
+        description: Success
     """
     db = read_db()
-    status = request.args.get('status')
     leaves = [l for l in db["leaves"] if l["employeeId"] == id]
+    status = request.args.get('status')
     if status:
         leaves = [l for l in leaves if l["status"].lower() == status.lower()]
-    return api_response(True, f"Leaves for employee {id} retrieved", leaves)
+    return api_response(True, f"Found {len(leaves)} leaves", leaves)
 
 @app.route('/api/leaves', methods=['POST'])
 def submit_leave():
@@ -128,38 +123,44 @@ def submit_leave():
         in: body
         required: true
         schema:
-          type: object
           properties:
             employeeId: {type: integer}
-            startDate: {type: string}
-            endDate: {type: string}
-            leaveType: {type: string}
+            startDate: {type: string, description: "YYYY-MM-DD"}
+            endDate: {type: string, description: "YYYY-MM-DD"}
+            leaveType: {type: string, description: "Annual, Sick, or Casual"}
             reason: {type: string}
+    responses:
+      201:
+        description: Created
     """
     db = read_db()
     data = request.json
     eid = data.get("employeeId")
 
-    # Validate Employee
     if not any(e["employeeId"] == eid for e in db["employees"]):
-        return api_response(False, "Employee does not exist"), 404
+        return api_response(False, f"Error: Employee ID {eid} does not exist."), 404
 
-    # Calculate Days
     try:
         start = datetime.strptime(data["startDate"], "%Y-%m-%d")
         end = datetime.strptime(data["endDate"], "%Y-%m-%d")
         total_days = (end - start).days + 1
+        year = start.year
         if total_days <= 0:
-            return api_response(False, "Invalid date range"), 400
+            return api_response(False, "Error: End date must be after Start date"), 400
     except Exception:
-        return api_response(False, "Invalid date format. Use YYYY-MM-DD"), 400
+        return api_response(False, "Error: Use YYYY-MM-DD format"), 400
 
-    # Check Balance
-    balance = next((b for b in db["balances"] if b["employeeId"] == eid and b["leaveType"].lower() == data["leaveType"].lower()), None)
-    if not balance or (balance["quota"] - balance["used"]) < total_days:
-        return api_response(False, "Insufficient balance"), 400
+    balance = next((b for b in db["balances"] 
+                    if b["employeeId"] == eid 
+                    and b["leaveType"].lower() == data["leaveType"].lower()
+                    and b["year"] == year), None)
+    
+    if not balance:
+        return api_response(False, f"Error: No quota for {data['leaveType']} found in {year}"), 400
+    
+    if total_days > (balance["quota"] - balance["used"]):
+        return api_response(False, "Error: Insufficient balance."), 400
 
-    # Save Leave
     new_id = db["metadata"]["lastLeaveId"] + 1
     leave_req = {
         "leaveId": new_id,
@@ -170,19 +171,29 @@ def submit_leave():
     db["leaves"].append(leave_req)
     db["metadata"]["lastLeaveId"] = new_id
     write_db(db)
-    
-    return api_response(True, "Leave request submitted", leave_req), 201
+    return api_response(True, "Leave request submitted successfully", leave_req), 201
 
 @app.route('/api/leavebalances/employee/<int:id>/year/<int:year>', methods=['GET'])
 def get_balance(id, year):
+    """
+    Check leave balances for an employee in a specific year.
+    ---
+    parameters:
+      - name: id
+        in: path
+        type: integer
+        required: true
+      - name: year
+        in: path
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Success
+    """
     db = read_db()
     balances = [b for b in db["balances"] if b["employeeId"] == id and b["year"] == year]
     return api_response(True, "Balances retrieved", balances)
-
-# Required by document: Raw OpenAPI JSON
-@app.route('/openapi.json')
-def openapi():
-    return jsonify(swagger.get_apispecs())
 
 if __name__ == '__main__':
     app.run(debug=True, port=8000)
