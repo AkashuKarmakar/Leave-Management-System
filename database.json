@@ -69,6 +69,16 @@
       "endDate": "2024-10-12",
       "leaveType": "Sick",
       "reason": "Testing the system"
+    },
+    {
+      "leaveId": 3,
+      "status": "Pending",
+      "totalDays": 3,
+      "employeeId": 1,
+      "startDate": "2024-12-10",
+      "endDate": "2024-12-12",
+      "leaveType": "Annual",
+      "reason": "Testing the system"
     }
   ],
   "balances": [
@@ -180,6 +190,6 @@
   ],
   "metadata": {
     "lastEmployeeId": 6,
-    "lastLeaveId": 2
+    "lastLeaveId": 3
   }
 }
