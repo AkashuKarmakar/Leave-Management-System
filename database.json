@@ -1,0 +1,175 @@
+{
+  "employees": [
+    {
+      "employeeId": 1,
+      "firstName": "Alice",
+      "lastName": "Smith",
+      "email": "alice@company.com",
+      "department": "Engineering",
+      "joinDate": "2023-01-15"
+    },
+    {
+      "employeeId": 2,
+      "firstName": "Bob",
+      "lastName": "Johnson",
+      "email": "bob@company.com",
+      "department": "HR",
+      "joinDate": "2022-03-10"
+    },
+    {
+      "employeeId": 3,
+      "firstName": "Charlie",
+      "lastName": "Davis",
+      "email": "charlie@company.com",
+      "department": "Marketing",
+      "joinDate": "2023-05-20"
+    },
+    {
+      "employeeId": 4,
+      "firstName": "Diana",
+      "lastName": "Prince",
+      "email": "diana@company.com",
+      "department": "Engineering",
+      "joinDate": "2021-11-01"
+    },
+    {
+      "employeeId": 5,
+      "firstName": "Edward",
+      "lastName": "Norton",
+      "email": "edward@company.com",
+      "department": "Sales",
+      "joinDate": "2024-02-01"
+    },
+    {
+      "department": "HR",
+      "email": "akash@company.com",
+      "firstName": "Akash",
+      "joinDate": "2026-05-01",
+      "lastName": "Karmakar",
+      "employeeId": 6
+    }
+  ],
+  "leaves": [
+    {
+      "leaveId": 1,
+      "status": "Pending",
+      "totalDays": 3,
+      "employeeId": 1,
+      "startDate": "2024-10-10",
+      "endDate": "2024-10-12",
+      "leaveType": "Annual",
+      "reason": "Testing the system"
+    }
+  ],
+  "balances": [
+    {
+      "employeeId": 1,
+      "year": 2024,
+      "leaveType": "Annual",
+      "quota": 20,
+      "used": 0
+    },
+    {
+      "employeeId": 1,
+      "year": 2024,
+      "leaveType": "Sick",
+      "quota": 10,
+      "used": 0
+    },
+    {
+      "employeeId": 1,
+      "year": 2024,
+      "leaveType": "Casual",
+      "quota": 5,
+      "used": 0
+    },
+    {
+      "employeeId": 2,
+      "year": 2024,
+      "leaveType": "Annual",
+      "quota": 20,
+      "used": 2
+    },
+    {
+      "employeeId": 2,
+      "year": 2024,
+      "leaveType": "Sick",
+      "quota": 10,
+      "used": 0
+    },
+    {
+      "employeeId": 2,
+      "year": 2024,
+      "leaveType": "Casual",
+      "quota": 5,
+      "used": 0
+    },
+    {
+      "employeeId": 3,
+      "year": 2024,
+      "leaveType": "Annual",
+      "quota": 20,
+      "used": 0
+    },
+    {
+      "employeeId": 3,
+      "year": 2024,
+      "leaveType": "Sick",
+      "quota": 10,
+      "used": 0
+    },
+    {
+      "employeeId": 3,
+      "year": 2024,
+      "leaveType": "Casual",
+      "quota": 5,
+      "used": 0
+    },
+    {
+      "employeeId": 4,
+      "year": 2024,
+      "leaveType": "Annual",
+      "quota": 20,
+      "used": 5
+    },
+    {
+      "employeeId": 4,
+      "year": 2024,
+      "leaveType": "Sick",
+      "quota": 10,
+      "used": 0
+    },
+    {
+      "employeeId": 4,
+      "year": 2024,
+      "leaveType": "Casual",
+      "quota": 5,
+      "used": 0
+    },
+    {
+      "employeeId": 5,
+      "year": 2024,
+      "leaveType": "Annual",
+      "quota": 20,
+      "used": 0
+    },
+    {
+      "employeeId": 5,
+      "year": 2024,
+      "leaveType": "Sick",
+      "quota": 10,
+      "used": 0
+    },
+    {
+      "employeeId": 5,
+      "year": 2024,
+      "leaveType": "Casual",
+      "quota": 5,
+      "used": 0
+    }
+  ],
+  "metadata": {
+    "lastEmployeeId": 6,
+    "lastLeaveId": 1
+  }
+}
